@@ -145,7 +145,7 @@ function Packet.create(data)
 
 	dprint("sending to:", remote.ClassName)
 
-	if remote:IsA("RemoteEvent") or remote:IsA("ReliableRemoteEvent") then
+	if remote:IsA("RemoteEvent") or remote:IsA("UnreliableRemoteEvent") then
 		fire(remote, data.args, data.raw)
 	elseif remote:IsA("RemoteFunction") then
 		return invoke(remote, data.args, data.raw)
