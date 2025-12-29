@@ -29,6 +29,26 @@ local function resolvePath(path)
     return current
 end
 
+local function fire(remote, args)
+    if args == nil then
+        remote:FireServer()
+    elseif type(args) == "table" then
+        remote:FireServer(table.unpack(args))
+    else
+        remote:FireServer(args)
+    end
+end
+
+local function invoke(remote, args)
+    if args == nil then
+        return remote:InvokeServer()
+    elseif type(args) == "table" then
+        return remote:InvokeServer(table.unpack(args))
+    else
+        return remote:InvokeServer(args)
+    end
+end
+
 function Packet.create(data)
     if type(data) ~= "table" or type(data.path) ~= "string" then
         return
@@ -40,17 +60,9 @@ function Packet.create(data)
     end
 
     if remote:IsA("RemoteEvent") then
-        if data.args ~= nil then
-            remote:FireServer(data.args)
-        else
-            remote:FireServer()
-        end
+        fire(remote, data.args)
     elseif remote:IsA("RemoteFunction") then
-        if data.args ~= nil then
-            return remote:InvokeServer(data.args)
-        else
-            return remote:InvokeServer()
-        end
+        return invoke(remote, data.args)
     end
 end
 
