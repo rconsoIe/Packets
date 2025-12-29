@@ -39,12 +39,18 @@ function Packet.create(data)
         return
     end
 
-    local args = data.args or {}
-
     if remote:IsA("RemoteEvent") then
-        remote:FireServer(args)
+        if data.args ~= nil then
+            remote:FireServer(data.args)
+        else
+            remote:FireServer()
+        end
     elseif remote:IsA("RemoteFunction") then
-        return remote:InvokeServer(args)
+        if data.args ~= nil then
+            return remote:InvokeServer(data.args)
+        else
+            return remote:InvokeServer()
+        end
     end
 end
 
