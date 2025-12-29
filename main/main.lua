@@ -145,12 +145,12 @@ function Packet.create(data)
 
 	dprint("sending to:", remote.ClassName)
 
-	if remote:IsA("RemoteEvent") then
-		fire(remote, data.args, data.raw)
+	if remote:IsA("RemoteEvent") or remote:IsA("UnreliableRemoteEvent") then
+    	fire(remote, data.args, data.raw)
 	elseif remote:IsA("RemoteFunction") then
-		return invoke(remote, data.args, data.raw)
+    	return invoke(remote, data.args, data.raw)
 	else
-		dprint("not a remote:", remote.ClassName)
+    	dprint("not a remote:", remote.ClassName)
 	end
 end
 
