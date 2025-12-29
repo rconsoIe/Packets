@@ -1,6 +1,5 @@
 local Packet = {}
 
-Packet.debug = false
 Packet.version = Packet.version or "main"
 
 local RemoteCache = {}
