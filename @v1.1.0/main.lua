@@ -1,5 +1,6 @@
 local Packet = {}
 
+Packet.debug = false
 Packet.version = Packet.version or "main"
 
 local RemoteCache = {}
@@ -131,7 +132,7 @@ local function invoke(remote, args, raw)
 end
 
 -- =========================
--- API (do not change anything that isnt under this, unless you know what ur doing)
+-- Public API
 -- =========================
 
 function Packet.create(data)
