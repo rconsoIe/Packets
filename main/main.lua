@@ -1,8 +1,10 @@
 local Packet = {}
 
 Packet.debug = false
+Packet.version = Packet.version or "main"
 
 local RemoteCache = {}
+local AllowedRoots = nil
 
 local function dprint(...)
 	if Packet.debug then
@@ -21,9 +23,23 @@ end
 
 local function resolvePath(path)
 	local key = string.lower(path)
+
 	if RemoteCache[key] then
-		dprint("cache hit:", path)
 		return RemoteCache[key]
+	end
+
+	if AllowedRoots then
+		local allowed = false
+		for _, root in ipairs(AllowedRoots) do
+			if key:sub(1, #root) == root then
+				allowed = true
+				break
+			end
+		end
+		if not allowed then
+			dprint("blocked by allowOnly:", path)
+			return
+		end
 	end
 
 	local current = game
@@ -36,7 +52,6 @@ local function resolvePath(path)
 	end
 
 	RemoteCache[key] = current
-	dprint("resolved:", path, "->", current:GetFullName())
 	return current
 end
 
@@ -52,22 +67,15 @@ local function isArray(t)
 end
 
 local function hasCircularRef(t, seen)
-	if type(t) ~= "table" then
-		return false
-	end
-
+	if type(t) ~= "table" then return false end
 	seen = seen or {}
-	if seen[t] then
-		return true
-	end
-
+	if seen[t] then return true end
 	seen[t] = true
 	for _, v in pairs(t) do
 		if type(v) == "table" and hasCircularRef(v, seen) then
 			return true
 		end
 	end
-
 	seen[t] = nil
 	return false
 end
@@ -123,6 +131,10 @@ local function invoke(remote, args, raw)
 	end
 end
 
+-- =========================
+-- Public API
+-- =========================
+
 function Packet.create(data)
 	if type(data) ~= "table" or type(data.path) ~= "string" then
 		dprint("invalid create() call")
@@ -130,9 +142,7 @@ function Packet.create(data)
 	end
 
 	local remote = resolvePath(data.path)
-	if not remote then
-		return
-	end
+	if not remote then return end
 
 	dprint("sending to:", remote.ClassName)
 
@@ -143,6 +153,51 @@ function Packet.create(data)
 	else
 		dprint("not a remote:", remote.ClassName)
 	end
+end
+
+function Packet.resolve(path)
+	return resolvePath(path)
+end
+
+function Packet.exists(path)
+	return resolvePath(path) ~= nil
+end
+
+function Packet.allowOnly(paths)
+	if type(paths) == "string" then
+		paths = { paths }
+	end
+
+	AllowedRoots = {}
+	for _, p in ipairs(paths) do
+		table.insert(AllowedRoots, string.lower(p))
+	end
+
+	dprint("allowOnly set:", table.concat(AllowedRoots, ", "))
+end
+
+function Packet.ping(path)
+	local remote = resolvePath(path)
+	if not remote then
+		warn("[Packets] ping failed:", path)
+		return false
+	end
+
+	if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+		dprint("ping ok:", path, "(" .. remote.ClassName .. ")")
+		return true
+	end
+
+	warn("[Packets] ping found non-remote:", path)
+	return false
+end
+
+function Packet.getVersion()
+	return Packet.version or "main"
+end
+
+function Packet.isLatest()
+	return Packet.version == nil or Packet.version == "main"
 end
 
 return Packet
