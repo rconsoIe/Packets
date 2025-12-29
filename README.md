@@ -162,3 +162,110 @@ local result = Packets.create({
     path = "replicatedstorage.remotes.getdata"
 })
 ```
+
+### Packets.exists
+
+Checks if a path can be resolved to a valid instance.
+
+Returns true if the path exists, false otherwise.
+
+Packets.exists does not fire the remote.
+
+Example:
+
+```lua
+Packets.exists("ReplicatedStorage.Remotes.Test")
+```
+
+Usage:
+
+```lua
+if Packets.exists("ReplicatedStorage.Remotes.Test") then
+    Packets.create({
+        path = "ReplicatedStorage.Remotes.Test"
+    })
+end
+```
+
+This uses the same path resolver as Packets.create
+(case-insensitive, cached, allowOnly-aware).
+
+---
+
+### Packets.resolve
+
+Resolves a path string and returns the actual Instance.
+
+Returns the Instance if found, or nil if not found.
+
+Example:
+
+```
+local remote = Packets.resolve("replicatedstorage.remotes.test")
+print(remote)
+```
+
+This is useful for:
+- debugging
+- inspecting remotes
+- verifying paths manually
+
+Packets.resolve does NOT fire or invoke the remote.
+
+---
+
+### Packets.ping
+
+Checks whether a path resolves to a RemoteEvent or RemoteFunction.
+
+Returns true if:
+- the path exists
+- and the instance is a RemoteEvent or RemoteFunction
+
+Returns false otherwise.
+
+Example:
+
+```
+Packets.ping("ReplicatedStorage.Remotes.Test")
+```
+
+With debug enabled, ping will log what it finds.
+
+This is mainly a sanity-check / debugging helper.
+
+---
+
+### Packets.allowOnly
+
+Restricts which paths Packets is allowed to resolve and fire.
+
+This is a developer safety feature, not security.
+
+Single root:
+
+```
+Packets.allowOnly("ReplicatedStorage.Remotes")
+```
+
+Multiple roots:
+
+```lua
+Packets.allowOnly({
+    "ReplicatedStorage.Remotes",
+    "ReplicatedStorage.Network"
+})
+```
+
+If a path is outside the allowed roots:
+- it will be blocked
+- nothing will be sent
+- a debug message is printed (if debug is enabled)
+
+allowOnly affects:
+- Packets.create
+- Packets.exists
+- Packets.resolve
+- Packets.ping
+
+Paths are matched by prefix and are case-insensitive.
