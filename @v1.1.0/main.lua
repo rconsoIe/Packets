@@ -182,7 +182,7 @@ function Packet.ping(path)
 		return false
 	end
 
-	if remote:IsA("RemoteEvent") or remote:IsA("RemoteFunction") then
+	if remote:IsA("RemoteEvent") or remote:IsA("UnreliableRemoteEvent") or remote:IsA("RemoteFunction") then
 		dprint("ping ok:", path, "(" .. remote.ClassName .. ")")
 		return true
 	end
