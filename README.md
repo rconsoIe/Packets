@@ -35,6 +35,16 @@ Packets.init()
 
 ## Documentary
 
+### Debug mode
+
+```lua
+local Packets = loadstring(game:HttpGet("https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/loader.lua"))()
+
+-- Packets.version = "1.0.1" (optional, must be the version 1.0.1 atleast to use debug mode)
+Packets.init()
+Packets.debug = true -- always use after using Packets.init()
+```
+
 ### Packets.create
 
 ### Usage
