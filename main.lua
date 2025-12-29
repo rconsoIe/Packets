@@ -30,7 +30,6 @@ local function resolvePath(path)
 end
 
 local function isArray(t)
-    if type(t) ~= "table" then return false end
     local count = 0
     for k in pairs(t) do
         if type(k) ~= "number" then
@@ -41,28 +40,64 @@ local function isArray(t)
     return count == #t
 end
 
-local function fire(remote, args)
+local function hasCircularRef(t, seen)
+    if type(t) ~= "table" then
+        return false
+    end
+
+    seen = seen or {}
+    if seen[t] then
+        return true
+    end
+
+    seen[t] = true
+    for _, v in pairs(t) do
+        if type(v) == "table" and hasCircularRef(v, seen) then
+            return true
+        end
+    end
+
+    seen[t] = nil
+    return false
+end
+
+local function fire(remote, args, raw)
     if args == nil then
         remote:FireServer()
-    elseif type(args) == "table" then
-        if isArray(args) then
-            remote:FireServer(table.unpack(args))
-        else
+        return
+    end
+
+    if type(args) == "table" then
+        if hasCircularRef(args) then
+            warn("Packets: circular reference detected, packet not sent")
+            return
+        end
+
+        if raw or not isArray(args) then
             remote:FireServer(args)
+        else
+            remote:FireServer(table.unpack(args))
         end
     else
         remote:FireServer(args)
     end
 end
 
-local function invoke(remote, args)
+local function invoke(remote, args, raw)
     if args == nil then
         return remote:InvokeServer()
-    elseif type(args) == "table" then
-        if isArray(args) then
-            return remote:InvokeServer(table.unpack(args))
-        else
+    end
+
+    if type(args) == "table" then
+        if hasCircularRef(args) then
+            warn("Packets: circular reference detected, packet not sent")
+            return
+        end
+
+        if raw or not isArray(args) then
             return remote:InvokeServer(args)
+        else
+            return remote:InvokeServer(table.unpack(args))
         end
     else
         return remote:InvokeServer(args)
@@ -80,9 +115,9 @@ function Packet.create(data)
     end
 
     if remote:IsA("RemoteEvent") then
-        fire(remote, data.args)
+        fire(remote, data.args, data.raw)
     elseif remote:IsA("RemoteFunction") then
-        return invoke(remote, data.args)
+        return invoke(remote, data.args, data.raw)
     end
 end
 
