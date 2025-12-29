@@ -29,11 +29,27 @@ local function resolvePath(path)
     return current
 end
 
+local function isArray(t)
+    if type(t) ~= "table" then return false end
+    local count = 0
+    for k in pairs(t) do
+        if type(k) ~= "number" then
+            return false
+        end
+        count += 1
+    end
+    return count == #t
+end
+
 local function fire(remote, args)
     if args == nil then
         remote:FireServer()
     elseif type(args) == "table" then
-        remote:FireServer(table.unpack(args))
+        if isArray(args) then
+            remote:FireServer(table.unpack(args))
+        else
+            remote:FireServer(args)
+        end
     else
         remote:FireServer(args)
     end
@@ -43,7 +59,11 @@ local function invoke(remote, args)
     if args == nil then
         return remote:InvokeServer()
     elseif type(args) == "table" then
-        return remote:InvokeServer(table.unpack(args))
+        if isArray(args) then
+            return remote:InvokeServer(table.unpack(args))
+        else
+            return remote:InvokeServer(args)
+        end
     else
         return remote:InvokeServer(args)
     end
