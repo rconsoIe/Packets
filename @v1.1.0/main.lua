@@ -145,7 +145,7 @@ function Packet.create(data)
 
 	dprint("sending to:", remote.ClassName)
 
-	if remote:IsA("RemoteEvent") then
+	if remote:IsA("RemoteEvent") or remote:IsA("ReliableRemoteEvent") then
 		fire(remote, data.args, data.raw)
 	elseif remote:IsA("RemoteFunction") then
 		return invoke(remote, data.args, data.raw)
@@ -189,6 +189,10 @@ function Packet.ping(path)
 
 	warn("[Packets] ping found non-remote:", path)
 	return false
+end
+
+function Packet.debugT(bool)
+	Packet.debug = bool
 end
 
 function Packet.getVersion()
