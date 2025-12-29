@@ -22,12 +22,15 @@ Pure Lua, nothing fancy.
 
 ## Setup
 
-Drop the module somewhere the client can require it or require it with `loadstring(game:HttpGet("https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/main.lua"))()`
+Drop the module somewhere the client can require it or require it with `loadstring(game:HttpGet("https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/loader.lua"))()`
 
 ## Require
 
 ```lua
-local Packets = loadstring(game:HttpGet("https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/main.lua"))()
+local Packets = loadstring(game:HttpGet("https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/loader.lua"))()
+
+-- Packets.version = "1.0.0" (this is optional, but you can still choose the version to load, it will load the last version as default)
+Packets.init()
 ```
 
 ## Documentary
