@@ -18,7 +18,7 @@ function Packets.init()
         path = "main/main.lua"
     end
 
-    local url = "https://raw.githubusercontent.com/rconsoIe/Packets/" .. path
+    local url = "https://raw.githubusercontent.com/rconsoIe/Packets/refs/heads/main/" .. path
 
     local ok, impl = pcall(function()
         return loadstring(game:HttpGet(url))()
