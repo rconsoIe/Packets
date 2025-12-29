@@ -1,4 +1,5 @@
 local Packet = {}
+Packet.debug = false
 
 Packet.version = Packet.version or "main"
 
@@ -189,6 +190,10 @@ function Packet.ping(path)
 
 	warn("[Packets] ping found non-remote:", path)
 	return false
+end
+
+function Packet.debugT(bool)
+	Packet.debug = bool
 end
 
 function Packet.getVersion()
